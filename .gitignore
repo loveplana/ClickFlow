@@ -1,0 +1,10 @@
+/.worktrees/
+/.superpowers/
+/build/
+/build-*/
+/.cache/
+*.exe
+*.obj
+*.o
+*.pdb
+*.ilk
