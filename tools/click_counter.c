@@ -221,7 +221,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     window_class.lpfnWndProc = counter_proc;
     window_class.hInstance = instance;
     window_class.hCursor = LoadCursorW(NULL, IDC_CROSS);
-    window_class.hIcon = LoadIconW(NULL, IDI_APPLICATION);
+    window_class.hIcon = LoadIconW(instance, MAKEINTRESOURCEW(101));
+    window_class.hIconSm = (HICON)LoadImageW(instance, MAKEINTRESOURCEW(101),
+        IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_SHARED);
     window_class.lpszClassName = CF_COUNTER_CLASS;
     if (RegisterClassExW(&window_class) == 0) return 1;
 

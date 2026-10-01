@@ -518,7 +518,9 @@ static bool create_window(CfApp *app, int show_command)
     window_class.style = CS_DBLCLKS | CS_OWNDC;
     window_class.lpfnWndProc = window_proc;
     window_class.hInstance = app->instance;
-    window_class.hIcon = LoadIconW(NULL, IDI_APPLICATION);
+    window_class.hIcon = LoadIconW(app->instance, MAKEINTRESOURCEW(101));
+    window_class.hIconSm = (HICON)LoadImageW(app->instance, MAKEINTRESOURCEW(101),
+        IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_SHARED);
     window_class.hCursor = LoadCursorW(NULL, IDC_ARROW);
     window_class.hbrBackground = NULL;
     window_class.lpszClassName = CF_WINDOW_CLASS;

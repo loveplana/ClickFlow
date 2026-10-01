@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(ClickFlow VERSION 0.1.0 LANGUAGES C RC)
+project(ClickFlow VERSION 0.1.1 LANGUAGES C RC)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -75,7 +75,7 @@ if(MINGW)
     target_link_options(clickflow PRIVATE -static -static-libgcc)
 endif()
 
-add_executable(clickflow_click_counter WIN32 tools/click_counter.c)
+add_executable(clickflow_click_counter WIN32 tools/click_counter.c resources/click_counter.rc)
 target_compile_definitions(clickflow_click_counter PRIVATE
     UNICODE
     _UNICODE
