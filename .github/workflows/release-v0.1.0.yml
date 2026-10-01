@@ -1,0 +1,64 @@
+name: Publish ClickFlow v0.1.0
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/release-v0.1.0.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release-v0.1.0
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify tested source and recover pre-icon package
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api "repos/$GH_REPO/actions/runs/36835636973" > build.json
+          jq -e '.conclusion == "success" and .head_sha == "b6a01f8d1e7831707c930c9c7d90a535a4dfc5aa"' build.json
+          gh api "repos/$GH_REPO/git/blobs/d9c425d10718e90fe5a74d963aa4fe5cb2d25378" --jq .content |
+            base64 --decode > ClickFlow-0.1.0-windows-x64.zip
+          printf '%s  %s\n' 'e68b37dc31838aa8e83322e7532db6bd0b4e82d810381c07415145db2789861f' 'ClickFlow-0.1.0-windows-x64.zip' > SHA256SUMS.txt
+          sha256sum --check SHA256SUMS.txt
+          unzip -t ClickFlow-0.1.0-windows-x64.zip
+          unzip -Z1 ClickFlow-0.1.0-windows-x64.zip | grep -Fx 'ClickFlow-0.1.0/clickflow.exe'
+          unzip -Z1 ClickFlow-0.1.0-windows-x64.zip | grep -Fx 'ClickFlow-0.1.0/clickflow_click_counter.exe'
+      - name: Publish release with Windows package
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release-notes.md <<'NOTES'
+          ClickFlow 首个公开版本，适用于 Windows 10/11 x64。
+
+          - 鼠标连点、操作录制与回放、可视化宏。
+          - 简体中文 / English，深浅主题与全局热键。
+          - 附带点击计数器，用于验证连点次数。
+          - MIT 许可证，免安装，本地运行。
+          - 发布包使用恢复后的未加图标版本。
+
+          下载并解压 ClickFlow-0.1.0-windows-x64.zip，运行 clickflow.exe；clickflow_click_counter.exe 为点击计数测试工具。
+          默认 F8 启动/停止，Esc 紧急停止。
+
+          First public release for Windows 10/11 x64. Includes auto-clicking, mouse recording/playback, editable macros, Chinese/English UI, themes, global hotkeys, and a click counter.
+          Extract the Windows ZIP and run clickflow.exe. F8 starts/stops clicking; Esc stops the current task.
+          This package uses the restored binaries without the added custom icons.
+
+          程序尚未进行数字签名，Windows 可能显示“未知发布者”提示。
+          The executables are unsigned; Windows may display an unknown-publisher warning.
+          NOTES
+          gh release create v0.1.0 ClickFlow-0.1.0-windows-x64.zip SHA256SUMS.txt \
+            --target b6a01f8d1e7831707c930c9c7d90a535a4dfc5aa \
+            --title 'ClickFlow v0.1.0' --notes-file release-notes.md --draft
+          gh release edit v0.1.0 --draft=false --latest
